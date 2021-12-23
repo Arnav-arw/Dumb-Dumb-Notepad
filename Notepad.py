@@ -1,67 +1,87 @@
 import wx
 
-app = wx.App()
-frm = wx.Frame(None, title="Simple Text Editor", size=(600,400))
-bkg = wx.Panel(frm)
-
-''''
-def OnOpen(event):
-    """
-
-    Load a file into the textField.
-    """
-    dialog = wx.FileDialog(None,'Notepad',style = wx.OPEN)
-    if dialog.ShowModal() == wx.ID_OK:
-        filename.SetValue(dialog.GetPath())
-        file = open(dialog.GetPath())
-        contents.SetValue(file.read())
-        file.close()
-    dialog.Destroy()
-
-def OnSave(event):
-    """
-
-    Save text into the orignal file.
-    """
-    if filename.GetValue() == '':
-        dialog = wx.FileDialog(None,'Notepad',style = wx.SAVE)
-        if dialog.ShowModal() == wx.ID_OK:
-            filename.SetValue(dialog.GetPath())
-            file = open(dialog.GetPath(), 'w')
-            file.write(contents.GetValue())
-            file.close()
-        dialog.Destory()
-    else:
-        file = open(filename.GetValue(), 'w')
-        file.write(contents.GetValue())
-        file.close()
-
-# Define a 'load' button and its label, bind to an button event with a function 'load'
-loadButton = wx.Button(bkg, label='Open')
-loadButton.Bind(wx.EVT_BUTTON, OnOpen)
-
-# Define a 'save' button and its label, bind to an button event with a function 'save'
-saveButton = wx.Button(bkg, label='Save')
-saveButton.Bind(wx.EVT_BUTTON, OnSave)
-
-# Use sizer to set relative position of the components.
-# Horizontal layout
-hbox = wx.BoxSizer()
-hbox.Add(loadButton, proportion=0, flag=wx.LEFT, border=5)
-hbox.Add(saveButton, proportion=0, flag=wx.LEFT, border=5)
-'''
-
-# Define a textBox for file contents.
-contents = wx.TextCtrl(bkg, style=wx.TE_MULTILINE | wx.HSCROLL)
+class CreateMenu():
+	def __init__(self,parent):
+		self.menuBar=wx.MenuBar()
+		self.file=wx.Menu()
+		self.open=self.file.Append(-1,'Open')
+		self.save=self.file.Append(-1,'Save')
+		self.file.AppendSeparator()
+		self.close=self.file.Append(-1,'Close')
+		self.menuBar.Append(self.file,'File')
+		self.edit=wx.Menu()
+		self.undo=self.edit.Append(-1,'Undo')
+		self.redo=self.edit.Append(-1,'Redo')
+		self.edit.AppendSeparator()
+		self.cut=self.edit.Append(-1,'Cut')
+		self.copy=self.edit.Append(-1,'Copy')
+		self.paste=self.edit.Append(-1,'Paste')
+		self.edit.AppendSeparator()
+		self.selectall=self.edit.Append(-1,'Select All')
+		self.menuBar.Append(self.edit,'Edit')
+		parent.SetMenuBar(self.menuBar)
 
 
-# Vertical layout
-vbox = wx.BoxSizer(wx.VERTICAL)
-#vbox.Add(hbox, proportion=0, flag=wx.EXPAND | wx.ALL, border=5)
-vbox.Add(contents, proportion=1,flag=wx.EXPAND | wx.LEFT | wx.BOTTOM | wx.RIGHT, border=5)
+class MyApp(wx.App):
 
-bkg.SetSizer(vbox)
+	def OnInit(self):
+		self.file=''
+		self.frame=wx.Frame(parent=None,title='Pad Master',size=(800,600))
+		self.panel=wx.Panel(self.frame,-1)
+		self.menu=CreateMenu(self.frame)
+		self.text=wx.TextCtrl(self.panel,-1,pos=(2,2),size=(795,580),style=wx.HSCROLL|wx.TE_MULTILINE)
+		self.Bind(wx.EVT_MENU,self.OnOpen,self.menu.open)
+		self.Bind(wx.EVT_MENU,self.OnSave,self.menu.save)
+		self.Bind(wx.EVT_MENU,self.OnClose,self.menu.close)
+		self.Bind(wx.EVT_MENU,self.OnUndo,self.menu.undo)
+		self.Bind(wx.EVT_MENU,self.OnRedo,self.menu.redo)
+		self.Bind(wx.EVT_MENU,self.OnCut,self.menu.cut)
+		self.Bind(wx.EVT_MENU,self.OnCopy,self.menu.copy)
+		self.Bind(wx.EVT_MENU,self.OnPaste,self.menu.paste)
+		self.Bind(wx.EVT_MENU,self.OnSelectAll,self.menu.selectall)
+		self.frame.Show()
+		return True
 
-frm.Show()
 
+	def OnOpen(self,event):
+		dialog=wx.FileDialog(None,'Pad Master',style=wx.FD_OPEN)
+		if dialog.ShowModal()==wx.ID_OK:
+			self.file=dialog.GetPath()
+			file=open(self.file)
+			self.text.write(file.read())
+			file.close()
+		dialog.Destroy()
+
+	def OnSave(self,event):
+		if self.file=='':
+			dialog=wx.FileDialog(None,'Pad Master',style=wx.FD_SAVE)
+			if dialog.ShowModal()==wx.ID_OK:
+				self.file=dialog.GetPath()
+				self.text.SaveFile(self.file)
+			dialog.Destroy()
+		else:
+			self.text.SaveFile(self.file)
+
+	def OnClose(self,event):
+		self.frame.Destroy()
+
+	def OnUndo(self,event):
+		self.text.Undo()
+
+	def OnRedo(self,event):
+		self.text.Redo()
+
+	def OnCut(self,event):
+		self.text.Cut()
+
+	def OnCopy(self,event):
+		self.text.Copy()
+
+	def OnPaste(self,event):
+		self.text.Paste()
+
+	def OnSelectAll(self,event):
+		self.text.SelectAll()
+
+app=MyApp()
 app.MainLoop()
