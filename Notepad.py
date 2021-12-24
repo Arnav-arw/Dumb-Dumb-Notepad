@@ -1,5 +1,8 @@
 import wx
 
+stockUndo = []
+stockRedo = []
+
 class CreateMenu():
 	def __init__(self,parent):
 		self.menuBar=wx.MenuBar()
@@ -25,6 +28,25 @@ class CreateMenu():
 		self.menuBar.Append(self.edit,'Edit')
 
 		parent.SetMenuBar(self.menuBar)
+
+class UndoText:
+        def __init__( self, sheet, text1, text2, row, column ):
+                self.RedoText = text2
+                self.row = row
+                self.col = column
+                self.UndoText = text1
+                self.sheet = sheet
+
+        def undo( self ):
+                self.RedoText = self.sheet.GetCellValue( self.row, self.col )
+                if self.UndoText == None:
+                        self.sheetSetCellValue( '' )
+                else: self.sheet.SetCellValue( self.row, self.col, self.UndoText )
+
+        def redo( self ):
+                if self.RedoText == None:
+                        self.sheet.SetCellValue( '' )
+                else: self.sheet.SetCellValue( self.row, self.col, self.RedoText )
 
 
 class MyApp(wx.App):
