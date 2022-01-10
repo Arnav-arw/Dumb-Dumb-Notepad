@@ -1,5 +1,5 @@
-# The-Pad-Master
-The Pad Master is a python based app which is a simple notepad for your simple notepad usage. 
+# Dumb Dumb Notepad
+Dumb Dumb Notepad is a python based app which is a simple notepad for your simple notepad usage. 
 This project is built with [python](https://www.python.org) and [wxpython](https://www.wxpython.org)
 
 > Consider leaving a ⭐ if you like the repository.
